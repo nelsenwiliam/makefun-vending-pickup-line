@@ -27,10 +27,30 @@ LINE = (
 OUTPUT_PATH = "/output/entry.txt"
 
 
+def validate_entry(line: str) -> None:
+    """Check the entry against the contest gates before writing it.
+
+    Gates: non-empty, exactly one line, 1-200 characters, valid UTF-8.
+    """
+    if not line:
+        raise ValueError("entry must not be empty")
+    if "\n" in line or "\r" in line:
+        raise ValueError("entry must be exactly one line")
+    if not 1 <= len(line) <= 200:
+        raise ValueError(f"entry must be 1-200 characters, got {len(line)}")
+    line.encode("utf-8")
+
+
 def main() -> None:
+    validate_entry(LINE)
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         f.write(LINE)
+    # Read the file back and confirm what was written is exactly the line.
+    with open(OUTPUT_PATH, "r", encoding="utf-8") as f:
+        written = f.read()
+    if written != LINE:
+        raise ValueError("read-back mismatch: entry.txt does not match the line")
     print(f"Wrote {len(LINE)} characters to {OUTPUT_PATH}")
 
 
